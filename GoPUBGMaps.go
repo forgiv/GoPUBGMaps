@@ -3,10 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/mitchellh/go-ps"
-	"os"
 )
-
-// TslGame.exe
 
 func checkRunning(processName string) bool {
 	out, _ := ps.Processes()
@@ -21,8 +18,8 @@ func checkRunning(processName string) bool {
 func main() {
 	var PUBG = "TslGame.exe"
 
-	if checkRunning(PUBG) {
-		fmt.Println("Game is currently running. Exiting...")
-		os.Exit(0)
+	for checkRunning(PUBG) {
+		fmt.Println("Game is currently running.")
+		fmt.Scanln("Exit game and press enter to continue.")
 	}
 }
