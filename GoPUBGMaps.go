@@ -63,6 +63,10 @@ func getContent(rootPath string) []string {
 	return items
 }
 
+func interpretContent(items []string) {
+	// TODO: Add code to read filenames and determine which maps are activated/deactived
+}
+
 func main() {
 	var input string
 	var gamePath = ""
