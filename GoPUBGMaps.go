@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/mitchellh/go-ps"
-	"path"
 	"path/filepath"
 	"os"
 	"runtime"
@@ -26,13 +25,13 @@ func checkRunning(processName string) bool {
 }
 
 func confirmPath(rootPath string) bool {
-	var correctPath = 0
+	var foundChildren = 0
 
-	if path.Base(rootPath) == GameFolder {
+	if filepath.Base(rootPath) == GameFolder {
 		err := filepath.Walk(rootPath, func(filePath string, info os.FileInfo, err error) error {
 			for i := 0; i < len(ChildFolders); i++ {
-				if ChildFolders[i] == path.Base(filePath) {
-					correctPath++
+				if ChildFolders[i] == filepath.Base(filePath) {
+					foundChildren++
 				}
 			}
 
@@ -40,11 +39,11 @@ func confirmPath(rootPath string) bool {
 		})
 
 		if err != nil {
-			panic(err)
+			return false
 		}
 	}
 
-	if correctPath == len(ChildFolders) {
+	if foundChildren == len(ChildFolders) {
 		return true
 	}
 	return false
