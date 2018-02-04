@@ -13,6 +13,7 @@ const GameFolder = "PUBG"
 var ChildFolders = [3]string{"_CommonRedist", "Engine", "TslGame"}
 const DefaultPath64 = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\PUBG"
 const DefaultPath32 = "C:\\Program Files\\Steam\\steamapps\\common\\PUBG"
+const RelativeContentPath = "TslGame\\Content\\Paks"
 
 func checkRunning(processName string) bool {
 	out, _ := ps.Processes()
@@ -47,6 +48,19 @@ func confirmPath(rootPath string) bool {
 		return true
 	}
 	return false
+}
+
+func getContent(rootPath string) []string {
+	contentPath := filepath.Join(rootPath, RelativeContentPath)
+	var items []string
+	err := filepath.Walk(contentPath, func(path string, info os.FileInfo, err error) error {
+		items = append(items, path)
+		return err
+	})
+	if err != nil {
+		panic(err)
+	}
+	return items
 }
 
 func main() {
