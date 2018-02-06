@@ -64,7 +64,7 @@ func getContent(rootPath string) []string {
 }
 
 func interpretContent(items []string) {
-	// TODO: Add code to read filenames and determine which maps are activated/deactived
+	// TODO: Add code to read filenames and determine which maps are activated/deactivated
 }
 
 func main() {
