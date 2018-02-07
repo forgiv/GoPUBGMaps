@@ -11,9 +11,12 @@ import (
 const PUBGExe  = "TslGame.exe"
 const GameFolder = "PUBG"
 var ChildFolders = [3]string{"_CommonRedist", "Engine", "TslGame"}
+
 const DefaultPath64 = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\PUBG"
 const DefaultPath32 = "C:\\Program Files\\Steam\\steamapps\\common\\PUBG"
 const RelativeContentPath = "TslGame\\Content\\Paks"
+
+var MapNames = [2]string{"desert", "erangel"}
 
 func checkRunning(processName string) bool {
 	out, _ := ps.Processes()
