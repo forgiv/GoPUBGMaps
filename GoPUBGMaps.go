@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"os"
 	"runtime"
+	"strings"
 )
 
 const PUBGExe  = "TslGame.exe"
@@ -18,7 +19,13 @@ const RelativeContentPath = "TslGame\\Content\\Paks"
 
 var MapNames = [2]string{"desert", "erangel"}
 
-func checkRunning(processName string) bool {
+type Map struct {
+	name 	string
+	active	bool
+	files 	[]string
+}
+
+func isRunning(processName string) bool {
 	out, _ := ps.Processes()
 	for i := 0; i < len(out); i++ {
 		if processName == out[i].Executable() {
@@ -28,7 +35,7 @@ func checkRunning(processName string) bool {
 	return false
 }
 
-func confirmPath(rootPath string) bool {
+func confirmGamePath(rootPath string) bool {
 	var foundChildren = 0
 
 	if filepath.Base(rootPath) == GameFolder {
@@ -53,28 +60,49 @@ func confirmPath(rootPath string) bool {
 	return false
 }
 
-func getContent(rootPath string) []string {
+func getMapPaths(rootPath string) []string {
 	contentPath := filepath.Join(rootPath, RelativeContentPath)
 	var items []string
+
 	err := filepath.Walk(contentPath, func(path string, info os.FileInfo, err error) error {
 		items = append(items, path)
 		return err
 	})
+
 	if err != nil {
 		panic(err)
 	}
 	return items
 }
 
-func interpretContent(items []string) {
-	// TODO: Add code to read filenames and determine which maps are activated/deactivated
+func parsePathsToMaps(items []string) []Map {
+	var maps []Map
+
+	for i := 0; i < len(items); i++ {
+		for j := 0; j < len(MapNames); j++ {
+			if strings.Contains(items[i], MapNames[j]) {
+				for k := 0; k < len(maps); k++ {
+					if maps[k].name == MapNames[j] {
+						maps[k].files = append(maps[k].files, items[i])
+					} else {
+						maps = append(maps, Map{name:MapNames[j], active:true, files:[]string{}})
+					}
+				}
+			}
+		}
+	}
+	return maps
+}
+
+func getActiveStatus(maps []Map) {
+	// TODO: Add code to set map active status from filenames
 }
 
 func main() {
 	var input string
 	var gamePath = ""
 
-	for checkRunning(PUBGExe) {
+	for isRunning(PUBGExe) {
 		fmt.Println("Game is currently running.")
 		fmt.Println("Exit game and press enter to continue.")
 		fmt.Scanln(&input)
@@ -92,11 +120,11 @@ func main() {
 
 	for {
 		fmt.Scanln(&input)
-		if confirmPath(DefaultPath64) {
+		if confirmGamePath(DefaultPath64) {
 			gamePath = DefaultPath64
-		} else if confirmPath(DefaultPath32) {
+		} else if confirmGamePath(DefaultPath32) {
 			gamePath = DefaultPath32
-		} else if confirmPath(input) {
+		} else if confirmGamePath(input) {
 			gamePath = input
 		}
 		if gamePath != "" {
