@@ -3,14 +3,15 @@ package main
 import (
 	"fmt"
 	"github.com/mitchellh/go-ps"
-	"path/filepath"
 	"os"
+	"path/filepath"
 	"runtime"
 	"strings"
 )
 
-const PUBGExe  = "TslGame.exe"
+const PUBGExe = "TslGame.exe"
 const GameFolder = "PUBG"
+
 var ChildFolders = [3]string{"_CommonRedist", "Engine", "TslGame"}
 
 const DefaultPath64 = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\PUBG"
@@ -20,9 +21,9 @@ const RelativeContentPath = "TslGame\\Content\\Paks"
 var MapNames = [2]string{"desert", "erangel"}
 
 type Map struct {
-	name 	string
-	active	bool
-	files 	[]string
+	name   string
+	active bool
+	files  []string
 }
 
 func isRunning(processName string) bool {
@@ -83,13 +84,16 @@ func parsePathsToMaps(items []string) []*Map {
 		for j := 0; j < len(MapNames); j++ {
 			if strings.Contains(items[i], MapNames[j]) {
 				if len(maps) == 0 {
-					maps = append(maps, &Map{name:MapNames[j], active:true, files:[]string{}})
-				}
-				for k := 0; k < len(maps); k++ {
-					if maps[k].name == MapNames[j] {
-						maps[k].files = append(maps[k].files, items[i])
-					} else {
-						maps = append(maps, &Map{name:MapNames[j], active:true, files:[]string{}})
+					maps = append(maps, &Map{name: MapNames[j], active: true, files: []string{}})
+				} else {
+					for k := 0; k < len(maps); k++ {
+						if maps[k].name == MapNames[j] {
+							maps[k].files = append(maps[k].files, items[i])
+							break
+						} else if k == len(maps) {
+							maps = append(maps, &Map{name: MapNames[j], active: true, files: []string{}})
+							break
+						}
 					}
 				}
 			}
@@ -111,7 +115,7 @@ func setFilenamesFromActiveStatus(maps []*Map) {
 		if maps[i].active {
 			for j := 0; j < len(maps[i].files); j++ {
 				if filepath.Ext(maps[i].files[j]) == "disabled" {
-					maps[i].files[j] = maps[i].files[j][:len(maps[i].files[j]) - len("disabled")]
+					maps[i].files[j] = maps[i].files[j][:len(maps[i].files[j])-len("disabled")]
 				}
 			}
 		} else {
