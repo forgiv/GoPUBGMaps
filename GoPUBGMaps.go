@@ -94,8 +94,30 @@ func parsePathsToMaps(items []string) []Map {
 	return maps
 }
 
-func getActiveStatus(maps []Map) {
-	// TODO: Add code to set map active status from filenames
+func updateActiveStatusFromFilenames(maps []*Map) {
+	for i := 0; i < len(maps); i++ {
+		if filepath.Ext(maps[i].files[0]) == "disabled" {
+			maps[i].active = false
+		}
+	}
+}
+
+func setFilenamesFromActiveStatus(maps []*Map) {
+	for i := 0; i < len(maps); i++ {
+		if maps[i].active {
+			for j := 0; j < len(maps[i].files); j++ {
+				if filepath.Ext(maps[i].files[j]) == "disabled" {
+					maps[i].files[j] = maps[i].files[j][:-1 * len("disabled")]
+				}
+			}
+		} else {
+			for j := 0; j < len(maps[i].files); j++ {
+				if filepath.Ext(maps[i].files[j]) != "disabled" {
+					maps[i].files[j] = maps[i].files[j] + ".disabled"
+				}
+			}
+		}
+	}
 }
 
 func main() {
