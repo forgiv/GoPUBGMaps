@@ -75,8 +75,8 @@ func getMapPaths(rootPath string) []string {
 	return items
 }
 
-func parsePathsToMaps(items []string) []Map {
-	var maps []Map
+func parsePathsToMaps(items []string) []*Map {
+	var maps []*Map
 
 	for i := 0; i < len(items); i++ {
 		for j := 0; j < len(MapNames); j++ {
@@ -85,7 +85,7 @@ func parsePathsToMaps(items []string) []Map {
 					if maps[k].name == MapNames[j] {
 						maps[k].files = append(maps[k].files, items[i])
 					} else {
-						maps = append(maps, Map{name:MapNames[j], active:true, files:[]string{}})
+						maps = append(maps, &Map{name:MapNames[j], active:true, files:[]string{}})
 					}
 				}
 			}
@@ -123,6 +123,7 @@ func setFilenamesFromActiveStatus(maps []*Map) {
 func main() {
 	var input string
 	var gamePath = ""
+	var maps []*Map
 
 	for isRunning(PUBGExe) {
 		fmt.Println("Game is currently running.")
@@ -156,5 +157,12 @@ func main() {
 			fmt.Printf("Provide absolute path to %s folder.\n", GameFolder)
 			continue
 		}
+	}
+
+	maps = parsePathsToMaps(getMapPaths(gamePath))
+	updateActiveStatusFromFilenames(maps)
+
+	for i := 0; i < len(maps); i++ {
+		fmt.Printf("%s: %b", maps[i].name, maps[i].active)
 	}
 }
