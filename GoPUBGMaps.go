@@ -72,6 +72,7 @@ func getMapPaths(rootPath string) []string {
 	if err != nil {
 		panic(err)
 	}
+
 	return items
 }
 
@@ -81,6 +82,9 @@ func parsePathsToMaps(items []string) []*Map {
 	for i := 0; i < len(items); i++ {
 		for j := 0; j < len(MapNames); j++ {
 			if strings.Contains(items[i], MapNames[j]) {
+				if len(maps) == 0 {
+					maps = append(maps, &Map{name:MapNames[j], active:true, files:[]string{}})
+				}
 				for k := 0; k < len(maps); k++ {
 					if maps[k].name == MapNames[j] {
 						maps[k].files = append(maps[k].files, items[i])
@@ -107,7 +111,7 @@ func setFilenamesFromActiveStatus(maps []*Map) {
 		if maps[i].active {
 			for j := 0; j < len(maps[i].files); j++ {
 				if filepath.Ext(maps[i].files[j]) == "disabled" {
-					maps[i].files[j] = maps[i].files[j][:-1 * len("disabled")]
+					maps[i].files[j] = maps[i].files[j][:len(maps[i].files[j]) - len("disabled")]
 				}
 			}
 		} else {
@@ -163,6 +167,6 @@ func main() {
 	updateActiveStatusFromFilenames(maps)
 
 	for i := 0; i < len(maps); i++ {
-		fmt.Printf("%s: %b", maps[i].name, maps[i].active)
+		fmt.Printf("%s: %t\n", maps[i].name, maps[i].active)
 	}
 }
