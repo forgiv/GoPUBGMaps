@@ -14,9 +14,9 @@ const GameFolder = "PUBG"
 
 var ChildFolders = [3]string{"_CommonRedist", "Engine", "TslGame"}
 
-const DefaultPath64 = filepath.Join("C:", "Program Files (x86)", "Steam", "steamapps", "common", "PUBG")
-const DefaultPath32 = filepath.Join("C:", "Program Files", "Steam", "steamapps", "common", "PUBG")
-const RelativeContentPath = filepath.Join("TslGame", "Content", "Paks")
+var DefaultPath64 = filepath.Join("C:", "Program Files (x86)", "Steam", "steamapps", "common", "PUBG")
+var DefaultPath32 = filepath.Join("C:", "Program Files", "Steam", "steamapps", "common", "PUBG")
+var RelativeContentPath = filepath.Join("TslGame", "Content", "Paks")
 
 var MapNames = [2]string{"desert", "erangel"}
 
