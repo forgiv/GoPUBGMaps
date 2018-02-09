@@ -80,21 +80,13 @@ func getMapPaths(rootPath string) []string {
 func parsePathsToMaps(items []string) []*Map {
 	var maps []*Map
 
-	for i := 0; i < len(items); i++ {
-		for j := 0; j < len(MapNames); j++ {
-			if strings.Contains(items[i], MapNames[j]) {
-				if len(maps) == 0 {
-					maps = append(maps, &Map{name: MapNames[j], active: true, files: []string{}})
-				} else {
-					for k := 0; k < len(maps); k++ {
-						if maps[k].name == MapNames[j] {
-							maps[k].files = append(maps[k].files, items[i])
-							break
-						} else if k == len(maps) {
-							maps = append(maps, &Map{name: MapNames[j], active: true, files: []string{}})
-							break
-						}
-					}
+	for i := 0; i < len(MapNames); i++ {
+		for j := 0; j < len(items); j++ {
+			if len(maps) == 0 {
+				maps = append(maps, &Map{name: MapNames[i], active: true, files: []string{items[j]}})
+			} else {
+				for k := 0; k < len(maps); k++ {
+					// TODO: Finish this code
 				}
 			}
 		}
