@@ -6,8 +6,8 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-	"strings"
 	"strconv"
+	"GoPUBGMaps/libs"
 )
 
 const PUBGExe = "TslGame.exe"
@@ -18,14 +18,6 @@ var ChildFolders = [3]string{"_CommonRedist", "Engine", "TslGame"}
 var DefaultPath64 = filepath.Join("C:", "Program Files (x86)", "Steam", "steamapps", "common", "PUBG")
 var DefaultPath32 = filepath.Join("C:", "Program Files", "Steam", "steamapps", "common", "PUBG")
 var RelativeContentPath = filepath.Join("TslGame", "Content", "Paks")
-
-var MapNames = [2]string{"desert", "erangel"}
-
-type Map struct {
-	name   string
-	active bool
-	files  []string
-}
 
 func isRunning(processName string) bool {
 	out, _ := ps.Processes()
@@ -78,74 +70,10 @@ func getMapPaths(rootPath string) []string {
 	return items
 }
 
-func parsePathsToMaps(items []string) []*Map {
-	var maps []*Map
-
-	for i := 0; i < len(MapNames); i++ {
-		for j := 0; j < len(items); j++ {
-			if strings.Contains(items[j], MapNames[i]) {
-				if len(maps) == 0 {
-					maps = append(maps, &Map{name:MapNames[i], active:true, files:[]string{items[j]}})
-				} else {
-					var found = false
-					for k := 0; k < len(maps); k++ {
-						if maps[k].name == MapNames[i] {
-							maps[k].files = append(maps[k].files, items[j])
-							found = true
-						}
-					}
-					if !found {
-						maps = append(maps, &Map{name:MapNames[i], active:true, files:[]string{items[j]}})
-					}
-				}
-			}
-		}
-	}
-	return maps
-}
-
-func updateActiveStatusFromFilenames(maps []*Map) {
-	for i := 0; i < len(maps); i++ {
-		if filepath.Ext(maps[i].files[0]) == ".disabled" {
-			maps[i].active = false
-		}
-	}
-}
-
-func setFilenamesFromActiveStatus(maps []*Map) {
-	for i := 0; i < len(maps); i++ {
-		if maps[i].active {
-			for j := 0; j < len(maps[i].files); j++ {
-				if filepath.Ext(maps[i].files[j]) == ".disabled" {
-					newName := maps[i].files[j][:len(maps[i].files[j])-len(".disabled")]
-					err := os.Rename(maps[i].files[j], newName)
-					if err != nil {
-						fmt.Printf("Error renaming file. Send this error to maintainer for fixing.\n%s\n", err)
-					} else {
-						maps[i].files[j] = newName
-					}
-				}
-			}
-		} else {
-			for j := 0; j < len(maps[i].files); j++ {
-				if filepath.Ext(maps[i].files[j]) != ".disabled" {
-					newName := maps[i].files[j] + ".disabled"
-					err := os.Rename(maps[i].files[j], newName)
-					if err != nil {
-						fmt.Printf("Error renaming file. Send this error to maintainer for fixing.\n%s\n", err)
-					} else {
-						maps[i].files[j] = newName
-					}
-				}
-			}
-		}
-	}
-}
-
 func main() {
 	var input string
 	var gamePath = ""
-	var maps []*Map
+	var game = &libs.Game{}
 
 	for isRunning(PUBGExe) {
 		fmt.Println("Game is currently running.")
@@ -181,12 +109,16 @@ func main() {
 		}
 	}
 
-	maps = parsePathsToMaps(getMapPaths(gamePath))
-	updateActiveStatusFromFilenames(maps)
+
+
+	game.MapsFromPaths(getMapPaths(gamePath))
+	game.UpdateMaps()
 
 	for {
-		for i := 0; i < len(maps); i++ {
-			fmt.Printf("%d. %s: %t\n", i+1, maps[i].name, maps[i].active)
+		i := 1
+		for key, value := range game.GetMaps() {
+			fmt.Printf("%d. %s: %t\n", i, key, value)
+			i++
 		}
 
 		fmt.Println("Enter the number of the map to enable/disable it. Or enter q to quit.")
@@ -203,7 +135,6 @@ func main() {
 			continue
 		}
 
-		maps[mapNum-1].active = !maps[mapNum-1].active
-		setFilenamesFromActiveStatus(maps)
+		game.ToggleActive(int(mapNum-1))
 	}
 }
