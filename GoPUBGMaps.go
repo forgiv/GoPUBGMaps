@@ -112,7 +112,7 @@ func main() {
 
 
 	game.ParsePathsToMaps(getMapPaths(gamePath))
-	game.UpdateActiveStatusFromFilenames()
+	game.ActiveFromFilenames()
 
 	for {
 		for i := 0; i < len(game.Maps); i++ {
@@ -134,6 +134,6 @@ func main() {
 		}
 
 		game.Maps[mapNum-1].Active = !game.Maps[mapNum-1].Active
-		game.SetFilenamesFromActiveStatus()
+		game.FilenamesFromActive()
 	}
 }

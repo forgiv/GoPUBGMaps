@@ -15,6 +15,10 @@ type Map struct {
 	Files  []string
 }
 
+func (m *Map) activeFromFiles() {
+	m.Active = filepath.Ext(m.Files[0]) == ".disabled"
+}
+
 func (m *Map) toggleActive() {
 	m.Active = !m.Active
 }
@@ -60,15 +64,13 @@ func (game *Game) ParsePathsToMaps(items []string) {
 	}
 }
 
-func (game *Game) UpdateActiveStatusFromFilenames() {
+func (game *Game) ActiveFromFilenames() {
 	for i := 0; i < len(game.Maps); i++ {
-		if filepath.Ext(game.Maps[i].Files[0]) == ".disabled" {
-			game.Maps[i].Active = false
-		}
+		game.Maps[i].activeFromFiles()
 	}
 }
 
-func (game *Game) SetFilenamesFromActiveStatus() {
+func (game *Game) FilenamesFromActive() {
 	for i := 0; i < len(game.Maps); i++ {
 		if game.Maps[i].Active {
 			for j := 0; j < len(game.Maps[i].Files); j++ {
