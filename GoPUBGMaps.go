@@ -106,7 +106,7 @@ func parsePathsToMaps(items []string) []*Map {
 
 func updateActiveStatusFromFilenames(maps []*Map) {
 	for i := 0; i < len(maps); i++ {
-		if filepath.Ext(maps[i].files[0]) == "disabled" {
+		if filepath.Ext(maps[i].files[0]) == ".disabled" {
 			maps[i].active = false
 		}
 	}
@@ -116,14 +116,26 @@ func setFilenamesFromActiveStatus(maps []*Map) {
 	for i := 0; i < len(maps); i++ {
 		if maps[i].active {
 			for j := 0; j < len(maps[i].files); j++ {
-				if filepath.Ext(maps[i].files[j]) == "disabled" {
-					maps[i].files[j] = maps[i].files[j][:len(maps[i].files[j])-len("disabled")]
+				if filepath.Ext(maps[i].files[j]) == ".disabled" {
+					newName := maps[i].files[j][:len(maps[i].files[j])-len(".disabled")]
+					err := os.Rename(maps[i].files[j], newName)
+					if err != nil {
+						fmt.Printf("Error renaming file. Send this error to maintainer for fixing.\n%s\n", err)
+					} else {
+						maps[i].files[j] = newName
+					}
 				}
 			}
 		} else {
 			for j := 0; j < len(maps[i].files); j++ {
-				if filepath.Ext(maps[i].files[j]) != "disabled" {
-					maps[i].files[j] = maps[i].files[j] + ".disabled"
+				if filepath.Ext(maps[i].files[j]) != ".disabled" {
+					newName := maps[i].files[j] + ".disabled"
+					err := os.Rename(maps[i].files[j], newName)
+					if err != nil {
+						fmt.Printf("Error renaming file. Send this error to maintainer for fixing.\n%s\n", err)
+					} else {
+						maps[i].files[j] = newName
+					}
 				}
 			}
 		}
