@@ -112,11 +112,13 @@ func main() {
 
 
 	game.MapsFromPaths(getMapPaths(gamePath))
-	game.ActiveFromFilenames()
+	game.UpdateMaps()
 
 	for {
-		for i := 0; i < len(game.Maps); i++ {
-			fmt.Printf("%d. %s: %t\n", i+1, game.Maps[i].Name, game.Maps[i].Active)
+		i := 1
+		for key, value := range game.GetMaps() {
+			fmt.Printf("%d. %s: %t\n", i, key, value)
+			i++
 		}
 
 		fmt.Println("Enter the number of the map to enable/disable it. Or enter q to quit.")
@@ -133,7 +135,6 @@ func main() {
 			continue
 		}
 
-		game.Maps[mapNum-1].Active = !game.Maps[mapNum-1].Active
-		game.FilenamesFromActive()
+		game.ToggleActive(int(mapNum-1))
 	}
 }
