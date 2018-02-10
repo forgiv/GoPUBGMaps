@@ -82,11 +82,20 @@ func parsePathsToMaps(items []string) []*Map {
 
 	for i := 0; i < len(MapNames); i++ {
 		for j := 0; j < len(items); j++ {
-			if len(maps) == 0 {
-				maps = append(maps, &Map{name: MapNames[i], active: true, files: []string{items[j]}})
-			} else {
-				for k := 0; k < len(maps); k++ {
-					// TODO: Finish this code
+			if strings.Contains(items[j], MapNames[i]) {
+				if len(maps) == 0 {
+					maps = append(maps, &Map{name:MapNames[i], active:true, files:[]string{items[j]}})
+				} else {
+					var found = false
+					for k := 0; k < len(maps); k++ {
+						if maps[k].name == MapNames[i] {
+							maps[k].files = append(maps[k].files, items[j])
+							found = true
+						}
+					}
+					if !found {
+						maps = append(maps, &Map{name:MapNames[i], active:true, files:[]string{items[j]}})
+					}
 				}
 			}
 		}
