@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-var MapNames = [2]string{"desert", "erangel"}
+var mapNames = [2]string{"desert", "erangel"}
 
 type Map struct {
 	Name   string
@@ -15,26 +15,44 @@ type Map struct {
 	Files  []string
 }
 
+func (m *Map) toggleActive() {
+	m.Active = !m.Active
+}
+
+func (m *Map) addPath(path string) {
+	if len(m.Files) == 0 {
+		m.Files = append(m.Files, path)
+	} else {
+		exists := false
+		for i := 0; i < len(m.Files); i++ {
+			exists = m.Files[i] == path
+		}
+		if exists == false {
+			m.Files = append(m.Files, path)
+		}
+	}
+}
+
 type Game struct {
 	Maps	[]*Map
 }
 
 func (game *Game) ParsePathsToMaps(items []string) {
-	for i := 0; i < len(MapNames); i++ {
+	for i := 0; i < len(mapNames); i++ {
 		for j := 0; j < len(items); j++ {
-			if strings.Contains(items[j], MapNames[i]) {
+			if strings.Contains(items[j], mapNames[i]) {
 				if len(game.Maps) == 0 {
-					game.Maps = append(game.Maps, &Map{Name:MapNames[i], Active:true, Files:[]string{items[j]}})
+					game.Maps = append(game.Maps, &Map{Name: mapNames[i], Active:true, Files:[]string{items[j]}})
 				} else {
 					var found = false
 					for k := 0; k < len(game.Maps); k++ {
-						if game.Maps[k].Name == MapNames[i] {
+						if game.Maps[k].Name == mapNames[i] {
 							game.Maps[k].Files = append(game.Maps[k].Files, items[j])
 							found = true
 						}
 					}
 					if !found {
-						game.Maps = append(game.Maps, &Map{Name:MapNames[i], Active:true, Files:[]string{items[j]}})
+						game.Maps = append(game.Maps, &Map{Name: mapNames[i], Active:true, Files:[]string{items[j]}})
 					}
 				}
 			}
