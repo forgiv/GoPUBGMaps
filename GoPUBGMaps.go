@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"strconv"
 )
 
 const PUBGExe = "TslGame.exe"
@@ -171,7 +172,26 @@ func main() {
 	maps = parsePathsToMaps(getMapPaths(gamePath))
 	updateActiveStatusFromFilenames(maps)
 
-	for i := 0; i < len(maps); i++ {
-		fmt.Printf("%s: %t\n", maps[i].name, maps[i].active)
+	for {
+		for i := 0; i < len(maps); i++ {
+			fmt.Printf("%d. %s: %t\n", i+1, maps[i].name, maps[i].active)
+		}
+
+		fmt.Println("Enter the number of the map to enable/disable it. Or enter q to quit.")
+		fmt.Scanln(&input)
+
+		if input == "q" || input == "Q" {
+			break
+		}
+
+		mapNum, err := strconv.ParseInt(input, 10, 16)
+
+		if err != nil {
+			fmt.Println("Input was invalid. Try again.")
+			continue
+		}
+
+		maps[mapNum-1].active = !maps[mapNum-1].active
+		setFilenamesFromActiveStatus(maps)
 	}
 }
