@@ -111,7 +111,7 @@ func main() {
 
 
 
-	game.ParsePathsToMaps(getMapPaths(gamePath))
+	game.MapsFromPaths(getMapPaths(gamePath))
 	game.ActiveFromFilenames()
 
 	for {

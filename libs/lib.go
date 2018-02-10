@@ -19,6 +19,38 @@ func (m *Map) activeFromFiles() {
 	m.Active = filepath.Ext(m.Files[0]) == ".disabled"
 }
 
+func (m *Map) enableFiles() {
+	for i := 0; i < len(m.Files); i++ {
+		newName := m.Files[i][:len(m.Files[i])-len(".disabled")]
+		err := os.Rename(m.Files[i], newName)
+		if err != nil {
+			fmt.Printf("Error renaming file: %s\n", err)
+		} else {
+			m.Files[i] = newName
+		}
+	}
+}
+
+func (m *Map) disableFiles() {
+	for i := 0; i < len(m.Files); i++ {
+		newName := m.Files[i] + ".disabled"
+		err := os.Rename(m.Files[i], newName)
+		if err != nil {
+			fmt.Printf("Error renaming file: %s\n", err)
+		} else {
+			m.Files[i] = newName
+		}
+	}
+}
+
+func (m *Map) updateFiles() {
+	if m.Active {
+		m.enableFiles()
+	} else {
+		m.disableFiles()
+	}
+}
+
 func (m *Map) toggleActive() {
 	m.Active = !m.Active
 }
@@ -31,7 +63,7 @@ func (m *Map) addPath(path string) {
 		for i := 0; i < len(m.Files); i++ {
 			exists = m.Files[i] == path
 		}
-		if exists == false {
+		if !exists {
 			m.Files = append(m.Files, path)
 		}
 	}
@@ -41,22 +73,22 @@ type Game struct {
 	Maps	[]*Map
 }
 
-func (game *Game) ParsePathsToMaps(items []string) {
+func (g *Game) MapsFromPaths(items []string) {
 	for i := 0; i < len(mapNames); i++ {
 		for j := 0; j < len(items); j++ {
 			if strings.Contains(items[j], mapNames[i]) {
-				if len(game.Maps) == 0 {
-					game.Maps = append(game.Maps, &Map{Name: mapNames[i], Active:true, Files:[]string{items[j]}})
+				if len(g.Maps) == 0 {
+					g.Maps = append(g.Maps, &Map{Name: mapNames[i], Active:true, Files:[]string{items[j]}})
 				} else {
-					var found = false
-					for k := 0; k < len(game.Maps); k++ {
-						if game.Maps[k].Name == mapNames[i] {
-							game.Maps[k].Files = append(game.Maps[k].Files, items[j])
-							found = true
+					exists := true
+					for k := 0; k < len(g.Maps); k++ {
+						if g.Maps[k].Name == mapNames[i] {
+							g.Maps[k].Files = append(g.Maps[k].Files, items[j])
+							exists = true
 						}
 					}
-					if !found {
-						game.Maps = append(game.Maps, &Map{Name: mapNames[i], Active:true, Files:[]string{items[j]}})
+					if !exists {
+						g.Maps = append(g.Maps, &Map{Name: mapNames[i], Active:true, Files:[]string{items[j]}})
 					}
 				}
 			}
@@ -64,38 +96,14 @@ func (game *Game) ParsePathsToMaps(items []string) {
 	}
 }
 
-func (game *Game) ActiveFromFilenames() {
-	for i := 0; i < len(game.Maps); i++ {
-		game.Maps[i].activeFromFiles()
+func (g *Game) ActiveFromFilenames() {
+	for i := 0; i < len(g.Maps); i++ {
+		g.Maps[i].activeFromFiles()
 	}
 }
 
-func (game *Game) FilenamesFromActive() {
-	for i := 0; i < len(game.Maps); i++ {
-		if game.Maps[i].Active {
-			for j := 0; j < len(game.Maps[i].Files); j++ {
-				if filepath.Ext(game.Maps[i].Files[j]) == ".disabled" {
-					newName := game.Maps[i].Files[j][:len(game.Maps[i].Files[j])-len(".disabled")]
-					err := os.Rename(game.Maps[i].Files[j], newName)
-					if err != nil {
-						fmt.Printf("Error renaming file. Send this error to maintainer for fixing.\n%s\n", err)
-					} else {
-						game.Maps[i].Files[j] = newName
-					}
-				}
-			}
-		} else {
-			for j := 0; j < len(game.Maps[i].Files); j++ {
-				if filepath.Ext(game.Maps[i].Files[j]) != ".disabled" {
-					newName := game.Maps[i].Files[j] + ".disabled"
-					err := os.Rename(game.Maps[i].Files[j], newName)
-					if err != nil {
-						fmt.Printf("Error renaming file. Send this error to maintainer for fixing.\n%s\n", err)
-					} else {
-						game.Maps[i].Files[j] = newName
-					}
-				}
-			}
-		}
+func (g *Game) FilenamesFromActive() {
+	for i := 0; i < len(g.Maps); i++ {
+		g.Maps[i].updateFiles()
 	}
 }
