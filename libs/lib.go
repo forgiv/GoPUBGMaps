@@ -9,6 +9,44 @@ import (
 
 var mapNames = [2]string{"desert", "erangel"}
 
+type MapFile struct {
+	active	bool
+	path	string
+}
+
+func (m MapFile) getActive() bool {
+	return m.active
+}
+
+func (m *MapFile) disableFile() {
+	newName := m.path + ".disabled"
+	err := os.Rename(m.path, newName)
+	if err != nil {
+		fmt.Printf("Error renaming file: %s\n", err)
+	} else {
+		m.path = newName
+	}
+}
+
+func (m *MapFile) enableFile() {
+	newName := m.path[:len(m.path)-len(".disabled")]
+	err := os.Rename(m.path, newName)
+	if err != nil {
+		fmt.Printf("Error renaming file: %s\n", err)
+	} else {
+		m.path = newName
+	}
+}
+
+func (m *MapFile) toggleActive() {
+	if m.active {
+		m.disableFile()
+	} else {
+		m.enableFile()
+	}
+	m.active = !m.active
+}
+
 type Map struct {
 	name   string
 	active bool
